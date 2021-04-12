@@ -238,8 +238,7 @@ namespace pGina.Configuration
 
         private void LoadGeneralSettings()
         {
-            m_pginaVersionLbl.Text = "pGina " +
-                System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            m_pginaVersionLbl.Text = "";
 
             m_tileImageTxt.Text = Settings.Get.GetSetting("TileImage", null);
             LoadTileImagePreview();
@@ -1208,6 +1207,7 @@ namespace pGina.Configuration
             PluginDriver sessionDriver = new PluginDriver();
             sessionDriver.UserInformation.Username = m_username.Text;
             sessionDriver.UserInformation.Password = m_password.Text;
+            sessionDriver.UserInformation.OTP = m_otp.Text;
 
             this.simPluginResultsListView.Items.Clear();
 
@@ -1323,7 +1323,7 @@ namespace pGina.Configuration
                 {
                     if (String.IsNullOrEmpty(m_tileImageTxt.Text.Trim()))
                     {
-                        m_tileImage.Image = pGina.Configuration.Properties.Resources.pginalogo_monochrome_126x126;
+                        m_tileImage.Image = pGina.Configuration.Properties.Resources.pginalogo_monochrome_200x200;
                     }
                     else
                     {
@@ -1332,7 +1332,7 @@ namespace pGina.Configuration
                 }
                 catch (Exception)
                 {
-                    m_tileImage.Image = pGina.Configuration.Properties.Resources.pginalogo_monochrome_126x126;
+                    m_tileImage.Image = pGina.Configuration.Properties.Resources.pginalogo_monochrome_200x200;
                 }
 
                 ResetStageStatus();
@@ -1493,6 +1493,11 @@ namespace pGina.Configuration
         private void enableMotdCB_CheckedChanged(object sender, EventArgs e)
         {
             this.motdTB.Enabled = this.enableMotdCB.Checked;
+        }
+
+        private void ConfigurationUI_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

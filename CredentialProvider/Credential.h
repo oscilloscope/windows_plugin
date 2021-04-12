@@ -71,6 +71,9 @@ namespace pGina
 			IFACEMETHODIMP Connect( __in IQueryContinueWithStatus *pqcws );
 			IFACEMETHODIMP Disconnect();
 
+			// 
+
+
 			Credential();
 			virtual ~Credential();
 

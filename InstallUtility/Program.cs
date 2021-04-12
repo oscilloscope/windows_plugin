@@ -87,6 +87,7 @@ namespace pGina.InstallUtil
                 if (args[0].Equals("post-install", StringComparison.CurrentCultureIgnoreCase))
                 {
                     DoPostInstall();
+                    //Console.ReadLine();
                 }
                 else if (args[0].Equals("post-uninstall", StringComparison.CurrentCultureIgnoreCase))
                 {

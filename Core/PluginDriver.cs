@@ -26,14 +26,18 @@
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Net;
+using System.Xml.Schema;
+using ComputerProperties;
 using log4net;
-using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using pGina.Plugin.Securify;
 using pGina.Shared.Interfaces;
 using pGina.Shared.Types;
-using System.Net;
-using System.IO;
+using System.Web.Script.Serialization;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace pGina.Core
 {
@@ -42,13 +46,32 @@ namespace pGina.Core
         private Guid m_sessionId = Guid.NewGuid();
         private SessionProperties m_properties = null;
         private ILog m_logger = null;
-        private static readonly HttpClient client = new HttpClient();
+
+
+        private string computerName;
+        private string cpuName;
+        private string gpuName;
+        private string osFullName;
+        private string osVersion;
+        private string totalPhysicalMemory;
+        private string platform = "windows";
+
+
+        // prop json
+        private string propJson;
+
+        // Plugin results
+        Dictionary<string, string> pluginResults = new Dictionary<string, string>();
+
+        // userid variable for securifyid plugin
+        private string securifyUserID;
+
 
         public Guid SessionId
         {
             get { return m_sessionId; }
-            set 
-            { 
+            set
+            {
                 m_sessionId = value;
                 m_properties.Id = value;
                 m_properties.AddTrackedObject("SessionId", new Guid(m_sessionId.ToString()));
@@ -57,14 +80,14 @@ namespace pGina.Core
 
         public PluginDriver()
         {
-            m_logger = LogManager.GetLogger(string.Format("PluginDriver:{0}", m_sessionId));            
+            m_logger = LogManager.GetLogger(string.Format("PluginDriver:{0}", m_sessionId));
 
             m_properties = new SessionProperties(m_sessionId);
 
             // Add the user information object we'll be using for this session
             UserInformation userInfo = new UserInformation();
             m_properties.AddTrackedSingle<UserInformation>(userInfo);
-            
+
             // Add the plugin tracking object we'll be using for this session
             PluginActivityInformation pluginInfo = new PluginActivityInformation();
             pluginInfo.LoadedAuthenticationGatewayPlugins = PluginLoader.GetOrderedPluginsOfType<IPluginAuthenticationGateway>();
@@ -101,73 +124,36 @@ namespace pGina.Core
             foreach (IPluginBase plugin in PluginLoader.AllPlugins)
                 plugin.Stopping();
         }
+        public string DictionaryToString(Dictionary<string, string> dictionary)
+        {
+            string dictionaryString = "";
+            foreach (KeyValuePair<string, string> keyValues in dictionary)
+            {
 
+                //var json = new JavaScriptSerializer().Serialize(keyValues.Value);
+                //JObject o = JObject.Parse(json);
+                //string result = (string)o["Result"];
+                //string message = (string)o["Message"];
+
+
+                dictionaryString += keyValues.Key + " : " + keyValues.Value + ", ";
+               // dictionaryString += keyValues.Key + " : " + "{" + "\"" + result +"\":" + "\"" + message + "\"" + "}"+ ", ";
+            }
+            // return dictionaryString.TrimEnd(',', ' ').Substring(dictionaryString.Length - 3);
+            return dictionaryString.Remove(dictionaryString.Length - 2);
+        }
         public BooleanResult PerformLoginProcess()
         {
             try
             {
-                // Set the original username to the current username if not already set
-                
+                // Set the original username to gputhe current username if not already set
                 UserInformation userInfo = m_properties.GetTrackedSingle<UserInformation>();
-
-           
-                string[] strarr = userInfo.Username.Split('#');
-                string username = strarr[0];
-                string otp = strarr[strarr.Length - 1];
-                Console.WriteLine("This is username" + username);
-                Console.WriteLine("This is otp" + otp);
-                userInfo.Username = username;
-
-                m_logger.DebugFormat("2222222222222222222222222222222222222222222 %s" + userInfo.Username);
-
-                var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://31.207.83.251:3999/api/check_totp");
-                var result2 = "";
-                httpWebRequest.ContentType = "application/json";
-                httpWebRequest.Method = "POST";          
-                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-                {
-                    string json = "{\"tenantid\":\"9\"," +
-                                  "\"userid\":\"biyosecure\"," +
-                                  "\"totp\":\"" + otp + "\"}";
-                    Console.WriteLine("this is json you sent: ");
-                    Console.WriteLine(json);
-                    streamWriter.Write(json);
-                }
-
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    result2 = streamReader.ReadToEnd();
-                }
-               
-
-
-
                 if (string.IsNullOrEmpty(userInfo.OriginalUsername))
                     userInfo.OriginalUsername = userInfo.Username;
 
                 // Execute login
                 BeginChain();
                 BooleanResult result = ExecuteLoginChain();
-                Console.WriteLine("RESSSSSSSSSSSSSSSSSSSSPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNSSSSSSSSSSEEEEEEEEEEE");
-                Console.WriteLine(result2);
-                
-                //if (result2.Contains("False"))
-                if (otp == "0")
-                {
-                    result.Success = false;
-                    result.Message = "WRONG OTP";
-                    m_logger.DebugFormat("REEEEEESUUUUUUUUUUUUUUUUULLLTTTT %s" + result.Success);
-
-
-                }
-                else {
-                    result.Success = true;
-                    
-                    m_logger.DebugFormat("REEEEEESUUUUUUUUUUUUUUUUULLLTTTT %s" + result.Success);
-                }
-                
-
                 EndChain();
 
                 return result;
@@ -180,24 +166,191 @@ namespace pGina.Core
                 return new BooleanResult() { Success = false, Message = string.Format("Unhandled exception during login: {0}", e) };
             }
         }
+        public void sendLog2(string _url, string platform, string log_type, bool result, string _tenant, string _tenantapikey, string _userid, string width, string height, string ipaddress, string __deviceid, string __notification_type, string __notification_create_date, string __sessionid, string __phonenumber, string token)
+        {
+            try
+            {
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(_url);
 
+                var response = "";
+                httpWebRequest.ContentType = "application/json";
+                httpWebRequest.Method = "POST";
+                httpWebRequest.Accept = "*/*";
+
+
+
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    string json = "{\"tenantid\":\"" + _tenant + "\"," +
+                                  "\"email\":\"" + _userid.ToLower() + "\"," +
+                                  "\"userid\":\"" + _userid.ToLower() + "\"," +
+                                  "\"log_type\":\"" + log_type + "\"," +
+                                  "\"ipaddress\":\"" + ipaddress + "\"," +
+                                  "\"screen_width\":\"" + width + "\"," +
+                                  "\"screen_height\":\"" + height + "\"," +
+                                  "\"device_type_name\":\"" + "" + "\"," +
+                                  "\"platform\":\"" + platform + "\"," +
+                                  "\"tenantapikey\":\"" + _tenantapikey.ToLower() + "\"," +
+                                  "\"sessionid\":\"" + __sessionid + "\"," +
+                                  "\"phone_number\":\"" + __phonenumber + "\"," +
+                                  (token == "" ? "" : "\"token\":\"" + token + "\",").ToString() +
+                                  //"\"device_id\":\"" + __deviceid.Replace("\"", "") + "\"," +
+                                  "\"device_id\":" + __deviceid + "," +
+                                  "\"notification_type\":\"" + __notification_type + "\"," +
+                                  "\"notification_create_date\":\"" + __notification_create_date + "\"," +
+                                  "\"result\":\"" + result.ToString().ToLower() + "\"}";
+
+                    streamWriter.Write(json);
+                }
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    response = streamReader.ReadToEnd();
+                }
+
+
+                // Console.WriteLine("Return response: " + response);
+
+            }
+            catch
+            {
+                //Console.WriteLine("Network is unreachable");
+            }
+        }
         private BooleanResult ExecuteLoginChain()
         {
             m_logger.DebugFormat("Performing login process");
+            UserInformation userInfo = m_properties.GetTrackedSingle<UserInformation>();
+
+            computerName = DeviceProperties.getComputerName().ToLower();
+            cpuName = DeviceProperties.getCPUName().ToLower();
+            gpuName = DeviceProperties.getGPUName().ToLower();
+            osFullName = DeviceProperties.getOSFullName().ToLower();
+            osVersion = DeviceProperties.getOSVersion().ToLower();
+            totalPhysicalMemory = DeviceProperties.getPhysicalMemory().ToLower();
+
             BooleanResult result = AuthenticateUser();
-            if (!result.Success)
+
+            
+
+            
+
+            string[] screenSize;
+            PluginImpl securifyPlugin = new PluginImpl();
+            dynamic securifySetting = securifyPlugin.getSecurifySetting;
+            string ipaddress = obtainIPAddress((string)securifySetting.url + "public_ip");
+                                    
+            try
+            {
+                screenSize = DeviceProp.ScreenSize();
+            }
+            catch
+            {
+                screenSize = new string[2];
+                // Console.WriteLine("Cannot obtain screen size");
+            }
+
+
+
+            if (!result.Success) {
+
+                propJson = "{\"pluginResults\":{" + DictionaryToString(pluginResults) + "}," +
+                        "\"computer_name\":\"" + computerName + "\"," +
+                                  "\"cpu_name\":\"" + cpuName + "\"," +
+                                  "\"gpu_name\":[" + gpuName + "]," +
+                                  "\"os_fullname\":\"" + osFullName + "\"," +
+                                  "\"os_version\":\"" + osVersion + "\"," +
+                                  "\"total_physical_memory\":\"" + totalPhysicalMemory + "\"}";
+                propJson = propJson.ToLower().Replace("ı", "i");
+                //sendLog((string)securifySetting.log, pluginName, pluginResult.Success, (string)securifySetting.tenant, userInfo.Username, screenSize[0], screenSize[1], ipaddress);
+                sendLog2((string)securifySetting.log, platform, "windows_fail_login", false, (string)securifySetting.tenant, (string)securifySetting.apiKey,
+                    securifyUserID, screenSize[0], screenSize[1], ipaddress, propJson, "", "", "", "", (string)securifySetting.token);
+                //result.Message = "Invalid Credentials";
+                // send windows fail log
                 return result;
+            }
 
             result = AuthorizeUser();
             if (!result.Success)
                 return result;
 
-            result = GatewayProcess();                
+            string temp_username = userInfo.Username;
+
+            result = GatewayProcess();
+
+            temp_username = userInfo.Username;
+
+           
+            if (result.Success)
+            {
+                bool allPluginsSuccess = !(result.Message == "One of the plugins failed.");
+                pluginResults.Add("\"" + "SingleUser" + "\"", "{\"Success \": \"" + allPluginsSuccess + " ( Last username: <" + temp_username + ">)" + "\", \"Message\": \"" + (allPluginsSuccess ? "windows_login_success" : "One of the plugins failed") + "\"}");
+
+                propJson = "{\"pluginResults\":{" + DictionaryToString(pluginResults) + "}," +
+                       "\"computer_name\":\"" + computerName + "\"," +
+                                 "\"cpu_name\":\"" + cpuName + "\"," +
+                                 "\"gpu_name\":[" + gpuName + "]," +
+                                 "\"os_fullname\":\"" + osFullName + "\"," +
+                                 "\"os_version\":\"" + osVersion + "\"," +
+                                 "\"total_physical_memory\":\"" + totalPhysicalMemory + "\"}";
+                propJson = propJson.ToLower().Replace("ı", "i");
+
+                sendLog2((string)securifySetting.log, platform, allPluginsSuccess? "windows_login_success":"One of the plugins failed", allPluginsSuccess, (string)securifySetting.tenant, (string)securifySetting.apiKey,
+                  securifyUserID, screenSize[0], screenSize[1], ipaddress, propJson, "", "", "", "", (string)securifySetting.token);
+            }
+            else
+            {
+
+                if(result.Message != null) 
+                { 
+                    if (result.Message.Contains("rejected"))
+                    {
+                        pluginResults.Add("\"" + "SingleUser" + "\"", "{\"Success \": \"" + result.Success + " ( Last username: <" + temp_username + ">)" + "\", \"Message\": \"" + "confirmation_fail" + "\"}");
+
+
+                        propJson = "{\"pluginResults\":{" + DictionaryToString(pluginResults) + "}," +
+                       "\"computer_name\":\"" + computerName + "\"," +
+                                 "\"cpu_name\":\"" + cpuName + "\"," +
+                                 "\"gpu_name\":[" + gpuName + "]," +
+                                 "\"os_fullname\":\"" + osFullName + "\"," +
+                                 "\"os_version\":\"" + osVersion + "\"," +
+                                 "\"total_physical_memory\":\"" + totalPhysicalMemory + "\"}";
+                        propJson = propJson.ToLower().Replace("ı", "i");
+
+
+
+
+
+
+
+                        sendLog2((string)securifySetting.log, platform, "confirmation_fail", false, (string)securifySetting.tenant, (string)securifySetting.apiKey,
+                     securifyUserID, screenSize[0], screenSize[1], ipaddress, propJson, "", "", "", "", (string)securifySetting.token);
+                    }
+                    else
+                    {
+                        pluginResults.Add("\"" + "SingleUser" + "\"", "{\"Success \": \"" + result.Success + " ( Last username: <" + temp_username + ">)" + "\", \"Message\": \"" + "windows_fail_login" + "\"}");
+
+                        propJson = "{\"pluginResults\":{" + DictionaryToString(pluginResults) + "}," +
+                       "\"computer_name\":\"" + computerName + "\"," +
+                                 "\"cpu_name\":\"" + cpuName + "\"," +
+                                 "\"gpu_name\":[" + gpuName + "]," +
+                                 "\"os_fullname\":\"" + osFullName + "\"," +
+                                 "\"os_version\":\"" + osVersion + "\"," +
+                                 "\"total_physical_memory\":\"" + totalPhysicalMemory + "\"}";
+                        propJson = propJson.ToLower().Replace("ı", "i");
+
+
+                        sendLog2((string)securifySetting.log, platform, "windows_fail_login", false, (string)securifySetting.tenant, (string)securifySetting.apiKey,
+                         securifyUserID, screenSize[0], screenSize[1], ipaddress, propJson, "", "", "", "", (string)securifySetting.token);
+                    }
+                }
+            }
+            //Console.WriteLine(result.Message);
+            //Console.WriteLine(result.Success);
             return result;
         }
-
-
-       
 
         public void BeginChain()
         {
@@ -219,33 +372,120 @@ namespace pGina.Core
             }
         }
 
+
+        
+        public string obtainIPAddress(string ipCheck)
+        {
+            string publicIp = "";
+
+            var httpPublicIP = (HttpWebRequest)WebRequest.Create(ipCheck);
+
+            publicIp = "";
+            httpPublicIP.ContentType = "application/json";
+            httpPublicIP.Method = "GET";
+            httpPublicIP.Accept = "*/*";
+
+            string ipaddress2 = "";
+            try
+            {
+
+
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                var httpResponse = (HttpWebResponse)httpPublicIP.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    publicIp = streamReader.ReadToEnd();
+                }
+
+
+
+                // Console.WriteLine(publicIp);
+                ipaddress2 = publicIp;
+                try
+                {
+                JObject joResponse = JObject.Parse(ipaddress2);
+                string ip4 = (string)joResponse["ip"];
+                    return ip4;
+                }
+                catch
+                {                    
+                    return "";
+                }
+                
+            }
+            catch
+            {
+                return "Could not obtain IP address";
+            }
+        }
+
+
+
         public BooleanResult AuthenticateUser()
-        {            
+        {
             PluginActivityInformation pluginInfo = m_properties.GetTrackedSingle<PluginActivityInformation>();
             List<IPluginAuthentication> plugins = PluginLoader.GetOrderedPluginsOfType<IPluginAuthentication>();
 
-            m_logger.DebugFormat("Authenticating user {0}, {1} plugins ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff fffffffffffffffffffffffffffffffff  available", m_properties.GetTrackedSingle<UserInformation>().Username, plugins.Count);
-
+            m_logger.DebugFormat("Authenticating user {0}, {1} plugins available", m_properties.GetTrackedSingle<UserInformation>().Username, plugins.Count);
+            
+            
             // At least one must succeed
             BooleanResult finalResult = new BooleanResult() { Success = false };
-            bool[] arr = new bool[plugins.Count];
-            int i = 0;
+            string pluginName = "";
+
+           
+
+            
+
+            
+
             foreach (IPluginAuthentication plugin in plugins)
             {
                 m_logger.DebugFormat("Calling {0}", plugin.Uuid);
+                
 
                 BooleanResult pluginResult = new BooleanResult() { Message = null, Success = false };
 
                 try
                 {
                     pluginResult = plugin.AuthenticateUser(m_properties);
-                    pluginInfo.AddAuthenticateResult(plugin.Uuid, pluginResult);
-                    arr[i] = pluginResult.Success;
-                    i++;
-                    for(int j = 0; j < arr.Length; j++)
+                    UserInformation userInfo = m_properties.GetTrackedSingle<UserInformation>();
+                    pluginName = plugin.Name;
+                    if (pluginName.Contains("SecurifyID") == true)
                     {
-                        m_logger.DebugFormat("this is j: " + j + "and this is the result of it: " + arr[j]);
+
+                        string temp_username = UserInformation.Username;
+                        string logMessage = pluginResult.Message;
+                        logMessage = logMessage.Replace("__________", temp_username);
+
+                        string output = String.Join(";", Regex.Matches(logMessage, @"\<(.+?)\>")
+                                  .Cast<Match>()
+                                  .Select(m => m.Groups[1].Value));
+
+
+                        string[] IDs = output.Split(';');
+                        try
+                        {
+
+                            securifyUserID = IDs[1];
+                        }
+                        catch {
+                            securifyUserID = "";
+                        }
+
+                        pluginResults.Add("\"" + pluginName + "\"", "{\"Success \": \"" + pluginResult.Success.ToString() + " (" + logMessage + ")" + "\", \"Message\": \"" + pluginResult.Message + "\"}");
                     }
+                    else {
+                        pluginResults.Add("\"" + pluginName + "\"", "{\"Success \": \"" + pluginResult.Success.ToString() + "\", \"Message\": \"" + pluginResult.Message + "\"}");
+                    }
+
+                    //sendLog((string)securifySetting.log, pluginName, pluginResult.Success, (string)securifySetting.tenant, userInfo.Username, screenSize[0], screenSize[1], ipaddress);
+
+
+                    pluginInfo.AddAuthenticateResult(plugin.Uuid, pluginResult);
+                    m_logger.DebugFormat("Calling {0}", plugin.Uuid);                   
+
                     if (pluginResult.Success)
                     {
                         m_logger.DebugFormat("{0} Succeeded", plugin.Uuid);
@@ -269,16 +509,7 @@ namespace pGina.Core
                     m_logger.ErrorFormat("{0} Threw an unexpected exception, assuming failure: {1}", plugin.Uuid, e);
                 }
             }
-            Boolean tmp = true;
-            for (int j = 0; j < arr.Length; j++)
-            {
-                tmp = tmp & arr[j]; 
-                // m_logger.DebugFormat("this is j: " + j + "and this is the result of it: " + arr[j]);
-            }
 
-            finalResult.Success = tmp;
-            finalResult.Message = "OTP or Radius Credentials Failed";
-            m_logger.Debug("PPPPPPPPPPPPPPPPPPPPP: " + finalResult.Success + finalResult.Message);
             if (finalResult.Success)
             {
                 // Clear any errors from plugins if we did succeed
@@ -289,15 +520,67 @@ namespace pGina.Core
             {
                 m_logger.ErrorFormat("Failed to authenticate {0}, Message: {1}", m_properties.GetTrackedSingle<UserInformation>().Username, finalResult.Message);
             }
-            
+
             return finalResult;
         }
+
+
+        public void sendLog(string _url, string platform, bool result, string _tenant, string _userid, string width, string height, string ipaddress)
+        {
+            try
+            {
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(_url);
+
+                var response = "";
+                httpWebRequest.ContentType = "application/json";
+                httpWebRequest.Method = "POST";
+                httpWebRequest.Accept = "*/*";
+
+
+
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    string json = "{\"tenantid\":\"" + _tenant + "\"," +
+                                  "\"email\":\"" + _userid + "\"," +
+                                  "\"userid\":\"" + _userid + "\"," +
+                                  "\"ipaddress\":\"" + ipaddress + "\"," +
+                                  "\"screen_width\":\"" + width + "\"," +
+                                  "\"screen_height\":\"" + height + "\"," +
+                                  "\"device_type_name\":\"" + "" + "\"," +
+                                  "\"platform\":\"" + platform + "\"," +
+                                  "\"result\":\"" + result + "\"}";
+                                        
+                    streamWriter.Write(json);
+                }
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    response = streamReader.ReadToEnd();
+                }
+
+                
+                //Console.WriteLine("Return response: " + response);
+
+            }
+            catch
+            {
+                // Console.WriteLine("Network is unreachable");
+            }
+        }
+
+
+
+        
+
+
 
         public BooleanResult AuthorizeUser()
         {
             PluginActivityInformation pluginInfo = m_properties.GetTrackedSingle<PluginActivityInformation>();
             List<IPluginAuthorization> plugins = PluginLoader.GetOrderedPluginsOfType<IPluginAuthorization>();
-            
+
             m_logger.DebugFormat("Authorizing user {0}, {1} plugins available", m_properties.GetTrackedSingle<UserInformation>().Username, plugins.Count);
 
             foreach (IPluginAuthorization plugin in plugins)
@@ -335,7 +618,7 @@ namespace pGina.Core
             List<IPluginAuthenticationGateway> plugins = PluginLoader.GetOrderedPluginsOfType<IPluginAuthenticationGateway>();
 
             m_logger.DebugFormat("Processing gateways for user {0}, {1} plugins available", m_properties.GetTrackedSingle<UserInformation>().Username, plugins.Count);
-
+            string pluginMessage = "";
             foreach (IPluginAuthenticationGateway plugin in plugins)
             {
                 m_logger.DebugFormat("Calling {0}", plugin.Uuid);
@@ -346,6 +629,11 @@ namespace pGina.Core
                 {
                     pluginResult = plugin.AuthenticatedUserGateway(m_properties);
                     pluginInfo.AddGatewayResult(plugin.Uuid, pluginResult);
+                    pluginMessage = (pluginResult.Message.Contains("One of the plugins failed.") ? "One of the plugins failed." : null);
+
+
+                    
+                    
 
                     // All must succeed, fail = total fail
                     if (!pluginResult.Success)
@@ -362,7 +650,8 @@ namespace pGina.Core
             }
 
             m_logger.InfoFormat("Successfully processed gateways for {0}", m_properties.GetTrackedSingle<UserInformation>().Username);
-            return new BooleanResult() { Success = true };
-        }                    
+            
+            return new BooleanResult() { Success = true, Message = pluginMessage };
+        }
     }
 }

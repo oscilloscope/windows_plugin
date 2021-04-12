@@ -35,6 +35,7 @@ using System.Reflection;
 
 using log4net;
 
+
 namespace Service
 {
     static class Program
@@ -44,6 +45,7 @@ namespace Service
         /// </summary>
         static void Main(string[] args)
         {
+            
             if (System.Environment.UserInteractive)
             {
                 // Initalize logging and grab a logger
@@ -52,7 +54,9 @@ namespace Service
 
                 try
                 {
+                    
                     string parameter = string.Concat(args);
+                    
                     switch (parameter)
                     {
                         case "--install":
@@ -81,6 +85,7 @@ namespace Service
             }
             else
             {
+                
                 ServiceBase[] ServicesToRun;
                 ServicesToRun = new ServiceBase[] 
 			    { 

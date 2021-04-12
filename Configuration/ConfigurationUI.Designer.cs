@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigurationUI));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.m_tabs = new System.Windows.Forms.TabControl();
             this.m_generalConfigTab = new System.Windows.Forms.TabPage();
             this.groupBox17 = new System.Windows.Forms.GroupBox();
@@ -150,6 +150,8 @@
             this.btnOkay = new System.Windows.Forms.Button();
             this.m_pginaVersionLbl = new System.Windows.Forms.Label();
             this.btnSaveAndClose = new System.Windows.Forms.Button();
+            this.m_otp = new System.Windows.Forms.TextBox();
+            this.OTP = new System.Windows.Forms.Label();
             this.m_tabs.SuspendLayout();
             this.m_generalConfigTab.SuspendLayout();
             this.groupBox17.SuspendLayout();
@@ -370,7 +372,7 @@
             this.servGB.Size = new System.Drawing.Size(236, 106);
             this.servGB.TabIndex = 2;
             this.servGB.TabStop = false;
-            this.servGB.Text = "pGina Service";
+            this.servGB.Text = "SecurifyID Service";
             // 
             // logonUiShowServiceStatusCB
             // 
@@ -513,7 +515,7 @@
             // m_tileImagePreview
             // 
             this.m_tileImagePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.m_tileImagePreview.Image = global::pGina.Configuration.Properties.Resources.pginalogo_monochrome_126x126;
+            this.m_tileImagePreview.Image = ((System.Drawing.Image)(resources.GetObject("m_tileImagePreview.Image")));
             this.m_tileImagePreview.Location = new System.Drawing.Point(591, 17);
             this.m_tileImagePreview.Name = "m_tileImagePreview";
             this.m_tileImagePreview.Size = new System.Drawing.Size(130, 130);
@@ -572,33 +574,33 @@
             this.pluginsDG.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.pluginsDG.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.pluginsDG.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.pluginsDG.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.pluginsDG.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.pluginsDG.DefaultCellStyle = dataGridViewCellStyle5;
             this.pluginsDG.Location = new System.Drawing.Point(10, 19);
             this.pluginsDG.Name = "pluginsDG";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.pluginsDG.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.pluginsDG.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.pluginsDG.Size = new System.Drawing.Size(735, 253);
             this.pluginsDG.TabIndex = 10;
             this.pluginsDG.DoubleClick += new System.EventHandler(this.pluginsDG_DoubleClick);
@@ -654,6 +656,7 @@
             // 
             this.lstPluginDirs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstPluginDirs.HideSelection = false;
             this.lstPluginDirs.Location = new System.Drawing.Point(10, 19);
             this.lstPluginDirs.MultiSelect = false;
             this.lstPluginDirs.Name = "lstPluginDirs";
@@ -923,9 +926,9 @@
             this.groupBox13.Controls.Add(this.simFinalResultMessageTB);
             this.groupBox13.Controls.Add(this.simPluginResultsListView);
             this.groupBox13.Controls.Add(this.label9);
-            this.groupBox13.Location = new System.Drawing.Point(8, 237);
+            this.groupBox13.Location = new System.Drawing.Point(8, 257);
             this.groupBox13.Name = "groupBox13";
-            this.groupBox13.Size = new System.Drawing.Size(776, 268);
+            this.groupBox13.Size = new System.Drawing.Size(776, 248);
             this.groupBox13.TabIndex = 5;
             this.groupBox13.TabStop = false;
             this.groupBox13.Text = "Results";
@@ -934,7 +937,7 @@
             // 
             this.simResultLocalGroupsTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.simResultLocalGroupsTB.Location = new System.Drawing.Point(142, 242);
+            this.simResultLocalGroupsTB.Location = new System.Drawing.Point(142, 222);
             this.simResultLocalGroupsTB.Name = "simResultLocalGroupsTB";
             this.simResultLocalGroupsTB.ReadOnly = true;
             this.simResultLocalGroupsTB.Size = new System.Drawing.Size(613, 20);
@@ -944,7 +947,7 @@
             // 
             this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(63, 246);
+            this.label16.Location = new System.Drawing.Point(63, 226);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(73, 13);
             this.label16.TabIndex = 9;
@@ -953,7 +956,7 @@
             // simFinalResultPB
             // 
             this.simFinalResultPB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.simFinalResultPB.Location = new System.Drawing.Point(57, 211);
+            this.simFinalResultPB.Location = new System.Drawing.Point(57, 191);
             this.simFinalResultPB.Name = "simFinalResultPB";
             this.simFinalResultPB.Size = new System.Drawing.Size(20, 20);
             this.simFinalResultPB.TabIndex = 8;
@@ -963,7 +966,7 @@
             // 
             this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(13, 214);
+            this.label15.Location = new System.Drawing.Point(13, 194);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(40, 13);
             this.label15.TabIndex = 7;
@@ -973,7 +976,7 @@
             // 
             this.simFinalResultMessageTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.simFinalResultMessageTB.Location = new System.Drawing.Point(142, 211);
+            this.simFinalResultMessageTB.Location = new System.Drawing.Point(142, 191);
             this.simFinalResultMessageTB.Name = "simFinalResultMessageTB";
             this.simFinalResultMessageTB.ReadOnly = true;
             this.simFinalResultMessageTB.Size = new System.Drawing.Size(613, 20);
@@ -985,9 +988,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.simPluginResultsListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.simPluginResultsListView.HideSelection = false;
             this.simPluginResultsListView.Location = new System.Drawing.Point(10, 20);
             this.simPluginResultsListView.Name = "simPluginResultsListView";
-            this.simPluginResultsListView.Size = new System.Drawing.Size(739, 180);
+            this.simPluginResultsListView.Size = new System.Drawing.Size(739, 160);
             this.simPluginResultsListView.TabIndex = 5;
             this.simPluginResultsListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -995,7 +999,7 @@
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(83, 214);
+            this.label9.Location = new System.Drawing.Point(83, 194);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(53, 13);
             this.label9.TabIndex = 4;
@@ -1014,7 +1018,7 @@
             this.groupBox10.Size = new System.Drawing.Size(133, 112);
             this.groupBox10.TabIndex = 3;
             this.groupBox10.TabStop = false;
-            this.groupBox10.Text = "pGina Stages";
+            this.groupBox10.Text = "SecurifyID Stages";
             // 
             // simGatewayResultPB
             // 
@@ -1138,19 +1142,21 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 13);
             this.label2.TabIndex = 9;
-            this.label2.Text = "Şifre2:";
+            this.label2.Text = "Password:";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(11, 22);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(58, 13);
+            this.label1.Size = new System.Drawing.Size(67, 13);
             this.label1.TabIndex = 8;
             this.label1.Text = "Kullanıcı Adı:";
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.OTP);
+            this.groupBox5.Controls.Add(this.m_otp);
             this.groupBox5.Controls.Add(this.btnSimGo);
             this.groupBox5.Controls.Add(this.m_password);
             this.groupBox5.Controls.Add(this.m_username);
@@ -1159,7 +1165,7 @@
             this.groupBox5.Controls.Add(this.m_tileImage);
             this.groupBox5.Location = new System.Drawing.Point(6, 6);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(355, 227);
+            this.groupBox5.Size = new System.Drawing.Size(355, 245);
             this.groupBox5.TabIndex = 1;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Simulated LogonUI";
@@ -1167,7 +1173,7 @@
             // btnSimGo
             // 
             this.btnSimGo.Image = global::pGina.Configuration.Properties.Resources.arrow_right_3;
-            this.btnSimGo.Location = new System.Drawing.Point(307, 184);
+            this.btnSimGo.Location = new System.Drawing.Point(306, 212);
             this.btnSimGo.Name = "btnSimGo";
             this.btnSimGo.Size = new System.Drawing.Size(30, 27);
             this.btnSimGo.TabIndex = 5;
@@ -1205,11 +1211,11 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(58, 13);
             this.label4.TabIndex = 1;
-            this.label4.Text = "Username2:";
+            this.label4.Text = "Username:";
             // 
             // m_tileImage
             // 
-            this.m_tileImage.Image = global::pGina.Configuration.Properties.Resources.pginalogo_monochrome_126x126;
+            this.m_tileImage.Image = ((System.Drawing.Image)(resources.GetObject("m_tileImage.Image")));
             this.m_tileImage.Location = new System.Drawing.Point(121, 21);
             this.m_tileImage.Name = "m_tileImage";
             this.m_tileImage.Size = new System.Drawing.Size(130, 130);
@@ -1229,7 +1235,7 @@
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Simulation Method";
-            //
+            // 
             // btnLaunchCredUI
             // 
             this.btnLaunchCredUI.Enabled = false;
@@ -1250,7 +1256,7 @@
             this.m_radioCredUI.TabIndex = 2;
             this.m_radioCredUI.Text = "Launch a CredUI Prompt";
             this.m_radioCredUI.UseVisualStyleBackColor = true;
-            this.m_radioCredUI.CheckedChanged += new System.EventHandler(this.simMethodChanged);            
+            this.m_radioCredUI.CheckedChanged += new System.EventHandler(this.simMethodChanged);
             // 
             // m_radioEmulate
             // 
@@ -1518,9 +1524,9 @@
             this.m_pginaVersionLbl.AutoSize = true;
             this.m_pginaVersionLbl.Location = new System.Drawing.Point(12, 615);
             this.m_pginaVersionLbl.Name = "m_pginaVersionLbl";
-            this.m_pginaVersionLbl.Size = new System.Drawing.Size(72, 13);
+            this.m_pginaVersionLbl.Size = new System.Drawing.Size(93, 13);
             this.m_pginaVersionLbl.TabIndex = 5;
-            this.m_pginaVersionLbl.Text = "pGina version";
+            this.m_pginaVersionLbl.Text = "SecurifyID version";
             // 
             // btnSaveAndClose
             // 
@@ -1534,6 +1540,22 @@
             this.btnSaveAndClose.UseVisualStyleBackColor = true;
             this.btnSaveAndClose.Click += new System.EventHandler(this.btnSaveAndClose_Click);
             // 
+            // m_otp
+            // 
+            this.m_otp.Location = new System.Drawing.Point(79, 214);
+            this.m_otp.Name = "m_otp";
+            this.m_otp.Size = new System.Drawing.Size(222, 20);
+            this.m_otp.TabIndex = 6;
+            // 
+            // OTP
+            // 
+            this.OTP.AutoSize = true;
+            this.OTP.Location = new System.Drawing.Point(18, 220);
+            this.OTP.Name = "OTP";
+            this.OTP.Size = new System.Drawing.Size(32, 13);
+            this.OTP.TabIndex = 7;
+            this.OTP.Text = "OTP:";
+            // 
             // ConfigurationUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1546,7 +1568,8 @@
             this.Controls.Add(this.m_tabs);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ConfigurationUI";
-            this.Text = "Securify Login Configuration Application";
+            this.Text = "SecurifyID Credential Provider Configuration ";
+            this.Load += new System.EventHandler(this.ConfigurationUI_Load);
             this.m_tabs.ResumeLayout(false);
             this.m_generalConfigTab.ResumeLayout(false);
             this.groupBox17.ResumeLayout(false);
@@ -1728,5 +1751,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.GroupBox groupBox18;
         private System.Windows.Forms.CheckBox defaultCPTileCB;
+        private System.Windows.Forms.Label OTP;
+        private System.Windows.Forms.TextBox m_otp;
     }
 }

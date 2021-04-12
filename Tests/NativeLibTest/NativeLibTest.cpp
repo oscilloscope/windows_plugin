@@ -45,7 +45,7 @@ class ThreadTest : public pGina::Threading::Thread
 int __cdecl _tmain(int argc, _TCHAR* argv[])
 {			
 	// And auth, all in one...
-	pGina::Transactions::User::LoginResult result = pGina::Transactions::User::ProcessLoginForUser(L"Administrator", L"", L"password", pGina::Protocol::LoginRequestMessage::Login);
+	pGina::Transactions::User::LoginResult result = pGina::Transactions::User::ProcessLoginForUser(L"Administrator", L"", L"password", L"otp", L"is_rdp", pGina::Protocol::LoginRequestMessage::Login);
 	if(result.Result())
 	{
 		pGina::Transactions::Log::Info(L"User: %s login successful!", result.Username().c_str());

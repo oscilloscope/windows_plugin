@@ -93,7 +93,7 @@ namespace Abstractions.WindowsApi
                 /// </summary>
                 CREDUIWIN_PACK_32_WOW = 0x10000000,
             }
-            
+
             public enum ResourceScope
             {
                 RESOURCE_CONNECTED = 1,
@@ -402,10 +402,10 @@ namespace Abstractions.WindowsApi
                                                                          ref bool fSave, PromptForWindowsCredentialsFlags flags);
 
             [DllImport("credui.dll", CharSet = CharSet.Auto)]
-            public static extern bool CredUnPackAuthenticationBuffer(int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer,                                                                       
-                                                                       StringBuilder pszUserName, ref int pcchMaxUserName,                                                                       
-                                                                       StringBuilder pszDomainName, ref int pcchMaxDomainname,                                                                       
-                                                                       StringBuilder pszPassword, ref int pcchMaxPassword);                                                                       
+            public static extern bool CredUnPackAuthenticationBuffer(int dwFlags, IntPtr pAuthBuffer, uint cbAuthBuffer,
+                                                                       StringBuilder pszUserName, ref int pcchMaxUserName,
+                                                                       StringBuilder pszDomainName, ref int pcchMaxDomainname,
+                                                                       StringBuilder pszPassword, ref int pcchMaxPassword);
             #endregion
 
             #region ole32.dll
@@ -424,7 +424,7 @@ namespace Abstractions.WindowsApi
             #endregion
 
             #region wtsapi32.dll
-            [DllImport("wtsapi32.dll", SetLastError = true)]            
+            [DllImport("wtsapi32.dll", SetLastError = true)]
             public static extern bool WTSQueryUserToken(int sessionId, out IntPtr Token);
 
             [DllImport("wtsapi32.dll")]
@@ -452,7 +452,7 @@ namespace Abstractions.WindowsApi
 
             #region userenv.dll
             [DllImport("userenv.dll")]
-            public static extern bool DeleteProfile(string sidString, string path, string machine);            
+            public static extern bool DeleteProfile(string sidString, string path, string machine);
 
             #endregion
 
@@ -464,14 +464,14 @@ namespace Abstractions.WindowsApi
 
             #region advapi32.dll
             [DllImport("advapi32.dll", SetLastError = true)]
-            public extern static bool DuplicateTokenEx(IntPtr hExistingToken, uint dwDesiredAccess, IntPtr tokenAttr, 
+            public extern static bool DuplicateTokenEx(IntPtr hExistingToken, uint dwDesiredAccess, IntPtr tokenAttr,
                 SECURITY_IMPERSONATION_LEVEL ImpersonationLevel, TOKEN_TYPE TokenType, out IntPtr phNewToken);
 
             [DllImport("advapi32.dll", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             public static extern bool OpenProcessToken(IntPtr ProcessHandle,
                                                         UInt32 DesiredAccess, out IntPtr TokenHandle);
-            
+
             // TokenInformation is really an IntPtr, but we only ever call this with SessionId, so we ref the int directly
             [DllImport("advapi32.dll", SetLastError = true)]
             public static extern bool SetTokenInformation(IntPtr TokenHandle, TOKEN_INFORMATION_CLASS TokenInformationClass,
@@ -498,7 +498,7 @@ namespace Abstractions.WindowsApi
             IntPtr result = IntPtr.Zero;
             if (SafeNativeMethods.WTSQueryUserToken(sessionId, out result))
                 return result;
-            return IntPtr.Zero;        
+            return IntPtr.Zero;
         }
 
         public static bool DeleteProfile(SecurityIdentifier sid)
@@ -507,21 +507,21 @@ namespace Abstractions.WindowsApi
         }
 
         public static List<string> GetInteractiveUserList()
-        {            
-            List<string> result = new List<string>();                          
+        {
+            List<string> result = new List<string>();
 
             IntPtr sessionInfoList = IntPtr.Zero;
             int sessionCount = 0;
             int retVal = SafeNativeMethods.WTSEnumerateSessions(SafeNativeMethods.WTS_CURRENT_SERVER_HANDLE, 0, 1, ref sessionInfoList, ref sessionCount);
 
-            if(retVal != 0)
-            {                
+            if (retVal != 0)
+            {
                 int dataSize = Marshal.SizeOf(typeof(SafeNativeMethods.WTS_SESSION_INFO));
-                int currentSession = (int) sessionInfoList;                
+                int currentSession = (int)sessionInfoList;
 
-                for(int x = 0; x < sessionCount; x++)
+                for (int x = 0; x < sessionCount; x++)
                 {
-                    SafeNativeMethods.WTS_SESSION_INFO sessionInfo = 
+                    SafeNativeMethods.WTS_SESSION_INFO sessionInfo =
                         (SafeNativeMethods.WTS_SESSION_INFO)Marshal.PtrToStructure((IntPtr)currentSession, typeof(SafeNativeMethods.WTS_SESSION_INFO));
                     currentSession += dataSize;
 
@@ -548,7 +548,7 @@ namespace Abstractions.WindowsApi
 
                     string domain = Marshal.PtrToStringAnsi(domainInfo);
                     SafeNativeMethods.WTSFreeMemory(domainInfo);
-                    
+
                     if (!string.IsNullOrEmpty(domain))
                     {
                         result.Add(string.Format("{0}\\{1}", domain, user));
@@ -562,7 +562,7 @@ namespace Abstractions.WindowsApi
                 SafeNativeMethods.WTSFreeMemory(sessionInfoList);
             }
 
-            return result;            
+            return result;
         }
 
         public static string GetUserName(int sessionId)
@@ -578,7 +578,7 @@ namespace Abstractions.WindowsApi
                 SafeNativeMethods.WTSFreeMemory(userInfo);
                 throw new Win32Exception(Win32ErrorResult, "WTSQuerySessionInformation");
             }
-            
+
             string userName = Marshal.PtrToStringAnsi(userInfo);
             SafeNativeMethods.WTSFreeMemory(userInfo);
             return userName;
@@ -590,9 +590,9 @@ namespace Abstractions.WindowsApi
         }
 
         public static System.Diagnostics.Process StartProcessInSession(int sessionId, string cmdLine)
-        {           
+        {
             IntPtr processToken = IntPtr.Zero;
-            IntPtr duplicateToken = IntPtr.Zero;            
+            IntPtr duplicateToken = IntPtr.Zero;
 
             try
             {
@@ -617,13 +617,13 @@ namespace Abstractions.WindowsApi
             finally
             {
                 SafeNativeMethods.CloseHandle(processToken);
-                SafeNativeMethods.CloseHandle(duplicateToken);                
-            }            
+                SafeNativeMethods.CloseHandle(duplicateToken);
+            }
         }
 
         public static System.Diagnostics.Process StartUserProcessInSession(int sessionId, string cmdLine)
         {
-            IntPtr processToken = IntPtr.Zero;            
+            IntPtr processToken = IntPtr.Zero;
 
             try
             {
@@ -636,7 +636,7 @@ namespace Abstractions.WindowsApi
             }
             finally
             {
-                SafeNativeMethods.CloseHandle(processToken);                
+                SafeNativeMethods.CloseHandle(processToken);
             }
         }
 
@@ -689,15 +689,15 @@ namespace Abstractions.WindowsApi
             SafeNativeMethods.CREDUI_INFO uiInfo = new SafeNativeMethods.CREDUI_INFO();
             uiInfo.cbSize = Marshal.SizeOf(uiInfo);
             uiInfo.pszCaptionText = caption;
-            uiInfo.pszMessageText = message;            
-            
+            uiInfo.pszMessageText = message;
+
             uint authPackage = 0;
             IntPtr outCredBuffer = new IntPtr();
             uint outCredSize;
             bool save = false;
             int result = SafeNativeMethods.CredUIPromptForWindowsCredentials(ref uiInfo, 0, ref authPackage,
                                                            IntPtr.Zero, 0, out outCredBuffer, out outCredSize, ref save, 0);
-                                                            
+
 
             var usernameBuf = new StringBuilder(100);
             var passwordBuf = new StringBuilder(100);
@@ -717,7 +717,7 @@ namespace Abstractions.WindowsApi
                         UserName = usernameBuf.ToString(),
                         Password = passwordBuf.ToString(),
                         Domain = domainBuf.ToString()
-                    };                    
+                    };
                 }
             }
 
@@ -755,7 +755,7 @@ namespace Abstractions.WindowsApi
         /// <returns>True if the account credentials are valid</returns>
         public static bool ValidateCredentials(string username, string password)
         {
-            return ValidateCredentials(username,"",password);
+            return ValidateCredentials(username, "", password);
         }
 
         /// <summary>

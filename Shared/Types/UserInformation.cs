@@ -65,6 +65,19 @@ namespace pGina.Shared.Types
         /// </summary>
         public string Password { get; set; }
 
+
+        /// <summary>
+        /// OTP
+        /// </summary>
+        public string OTP { get; set; }
+
+
+        /// <summary>
+        /// IS_RDP
+        /// </summary>
+        public string is_rdp { get; set; }
+
+
         /// <summary>
         /// Description of this user
         /// </summary>
@@ -74,6 +87,15 @@ namespace pGina.Shared.Types
         /// The full name associated with this user account.
         /// </summary>
         public string Fullname { get; set; }
+
+        /// <summary>
+        /// Log URL for the session
+        /// </summary>
+        public string LogURL { get; set; }
+        /// <summary>
+        /// TenantID for the session
+        /// </summary>
+        public string TenantID { get; set; }
 
         public UserInformation()
         {

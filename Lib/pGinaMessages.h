@@ -177,22 +177,26 @@ namespace pGina
 				SessionFromProcessId();
 			}
 
-			LoginRequestMessage(std::wstring const& username, std::wstring const& domain, std::wstring const& password, LoginReason reason)
+			LoginRequestMessage(std::wstring const& username, std::wstring const& domain, std::wstring const& password, std::wstring const& otp, std::wstring const& is_rdp, LoginReason reason)
 			{
 				Type(LoginRequest);
 				Username(username);
 				Domain(domain);
 				Password(password);
+				OTP(otp);
+				IS_RDP(is_rdp);
 				SessionFromProcessId();
 				Reason(reason);
 			}
 
-			LoginRequestMessage(const wchar_t * username, const wchar_t * domain, const wchar_t *password, LoginReason reason)
+			LoginRequestMessage(const wchar_t * username, const wchar_t * domain, const wchar_t *password, const wchar_t *otp, const wchar_t *is_rdp, LoginReason reason)
 			{
 				Type(LoginRequest);
 				Username(username ? username : L"");
 				Domain(domain ? domain : L"");
 				Password(password ? password : L"");
+				OTP(otp ? otp : L"");				
+				IS_RDP(is_rdp ? is_rdp : L"");
 				SessionFromProcessId();
 				Reason(reason);
 			}
@@ -202,6 +206,12 @@ namespace pGina
 
 			std::wstring const& Password() { return m_password; }
 			void			    Password(std::wstring const& v) { m_password = v; }
+
+			std::wstring const& OTP() { return m_otp; }
+			void			    OTP(std::wstring const& v) { m_otp = v; }
+
+			std::wstring const& IS_RDP() { return is_rdp; }
+			void			    IS_RDP(std::wstring const& v) { is_rdp = v; }
 
 			std::wstring const& Domain() { return m_domain; }
 			void			    Domain(std::wstring const& v) { m_domain = v; }
@@ -225,6 +235,12 @@ namespace pGina
 				if(msg->Exists<std::wstring>(L"Password"))
 					Password(msg->Property<std::wstring>(L"Password"));
 
+				if (msg->Exists<std::wstring>(L"OTP"))
+					OTP(msg->Property<std::wstring>(L"OTP"));
+
+				if (msg->Exists<std::wstring>(L"is_rdp"))
+					IS_RDP(msg->Property<std::wstring>(L"is_rdp"));
+
 				if(msg->Exists<int>(L"Session"))
 					Session(msg->Property<int>(L"Session"));
 
@@ -238,6 +254,8 @@ namespace pGina
 				msg->Property<std::wstring>(L"Username", Username(), pGina::Messaging::String);
 				msg->Property<std::wstring>(L"Domain", Domain(), pGina::Messaging::String);
 				msg->Property<std::wstring>(L"Password", Password(), pGina::Messaging::String);
+				msg->Property<std::wstring>(L"OTP", OTP(), pGina::Messaging::String);
+				msg->Property<std::wstring>(L"is_rdp", IS_RDP(), pGina::Messaging::String);
 				msg->Property<int>(L"Session", Session(), pGina::Messaging::Integer);
 				msg->Property<unsigned char>(L"Reason", (unsigned char) (Reason()), pGina::Messaging::Byte);
 				return msg;
@@ -247,6 +265,8 @@ namespace pGina
 			std::wstring m_username;
 			std::wstring m_domain;
 			std::wstring m_password;
+			std::wstring m_otp;
+			std::wstring is_rdp;
 			int m_session;
 			LoginReason m_reason;
 
@@ -460,8 +480,8 @@ namespace pGina
 					Type(LoginInfoChange);
 				}
 
-				LoginInfoChangeMessage(const wchar_t * username, const wchar_t * domain, const wchar_t *password) :
-					LoginRequestMessage(username, domain, password, Login),
+				LoginInfoChangeMessage(const wchar_t * username, const wchar_t * domain, const wchar_t *password, const wchar_t *otp, const wchar_t *is_rdp) :
+					LoginRequestMessage(username, domain, password, otp, is_rdp, Login),
 					m_fromSession(0),
 				    m_toSession(0)
 				{

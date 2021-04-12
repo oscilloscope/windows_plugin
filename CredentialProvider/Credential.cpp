@@ -45,7 +45,13 @@
 #include "ProviderGuid.h"
 #include "resource.h"
 
+
+
 #include <wincred.h>
+#include <WinWlx.h>
+#include "../Gina/Gina/Gina.h"
+
+
 
 namespace pGina
 {
@@ -65,7 +71,8 @@ namespace pGina
 				QITABENT(Credential, IConnectableCredentialProviderCredential), 
 				{0},
 			};
-
+			//CHANGEDD
+			// m_usageScenario = CPUS_CREDUI;
 			if(m_usageScenario == CPUS_CREDUI)
 			{			
 				return QISearch(this, qitBaseOnly, riid, ppv);
@@ -161,6 +168,7 @@ namespace pGina
 
 		IFACEMETHODIMP Credential::GetBitmapValue(__in DWORD dwFieldID, __out HBITMAP* phbmp)
 		{
+			pDEBUG(L"Credential::GetBitmapValue: Loading built-in image");
 			if(!m_fields || dwFieldID >= m_fields->fieldCount || !phbmp)
 				return E_INVALIDARG;
 
@@ -168,9 +176,12 @@ namespace pGina
 				return E_INVALIDARG;
 
 			HBITMAP bitmap = NULL;
+
+
 			std::wstring tileImage = pGina::Registry::GetString(L"TileImage", L"");
+
 			if(tileImage.empty() || tileImage.length() == 1)
-			{
+			{				
 				// Use builtin
 				bitmap = LoadBitmap(GetMyInstance(), MAKEINTRESOURCE(IDB_LOGO_MONOCHROME_200));
 			}
@@ -253,18 +264,26 @@ namespace pGina
 		{
 			return E_NOTIMPL;
 		}
-
+		
 		IFACEMETHODIMP Credential::GetSerialization(__out CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE* pcpgsr, __out CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION* pcpcs,
 													__deref_out_opt PWSTR* ppwszOptionalStatusText, __out CREDENTIAL_PROVIDER_STATUS_ICON* pcpsiOptionalStatusIcon)
 		{
 			pDEBUG(L"Credential::GetSerialization, enter");
+
 			// If we are operating in a non CredUI scenario, then 
 			// Credential::Connect will have executed prior to this method, which contacts the
 			// service, so m_loginResult should have the result from the plugins. Otherwise,
 			// consider this the attempt to login!
+			//if (pGina::Helpers::UserIsRemote())
+			
+
 			if(m_usageScenario == CPUS_CREDUI)
 			{
+				pDEBUG(L"CPUS_CREDUI is true");
 				ProcessLoginAttempt(NULL);
+			}
+			else {
+				pDEBUG(L"CPUS_CREDUI is false");
 			}
 
 			if( m_logonCancelled )
@@ -298,10 +317,15 @@ namespace pGina
 			// LogonUI/Winlogon as a serialized/packed logon structure.
 
 			pGina::Memory::ObjectCleanupPool cleanup;
-
+			
+			// CHANGEDD
 			PWSTR username = m_loginResult.Username().length() > 0 ? _wcsdup(m_loginResult.Username().c_str()) : NULL;
 			PWSTR password = m_loginResult.Password().length() > 0 ? _wcsdup(m_loginResult.Password().c_str()) : NULL;
-			
+
+
+			//PWSTR username = m_loginResult.Username().length() > 0 ? _wcsdup(m_loginResult.Username().c_str()) : NULL;
+			// PWSTR password = m_loginResult.Password().length() > 0 ? _wcsdup(m_loginResult.Password().c_str()) : NULL;
+		
 			PWSTR domain = m_loginResult.Domain().length() > 0 ? _wcsdup(m_loginResult.Domain().c_str()) : NULL;			
 
 			cleanup.AddFree(username);
@@ -407,6 +431,7 @@ namespace pGina
 
 		void Credential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus, UI_FIELDS const& fields, DWORD usageFlags, const wchar_t *username, const wchar_t *password)
 		{
+			
 			m_usageScenario = cpus;
 			m_usageFlags = usageFlags;
 
@@ -419,11 +444,17 @@ namespace pGina
 			m_fields->passwordFieldIdx = fields.passwordFieldIdx;
 			m_fields->otpFieldIdx = fields.otpFieldIdx;
 			m_fields->statusFieldIdx = fields.statusFieldIdx;
+
+			
+			
 			for(DWORD x = 0; x < fields.fieldCount; x++)
 			{
+				
 				m_fields->fields[x].fieldDescriptor = fields.fields[x].fieldDescriptor;
 				m_fields->fields[x].fieldStatePair = fields.fields[x].fieldStatePair;
 				m_fields->fields[x].fieldDataSource = fields.fields[x].fieldDataSource;
+				
+				
 				m_fields->fields[x].wstr = NULL;
 				if(fields.fields[x].wstr)
 				{
@@ -439,12 +470,48 @@ namespace pGina
 					}
 				}				
 			}			
+			
+			#define BUFFER 8192
+			char value[255] ;
+			DWORD BufferSize = BUFFER;
+			/*if (RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\pGina3\\Plugins\\81f8034e-e278-4754-b10c-7066656de5b7\\Username\\"), &key) != ERROR_SUCCESS)
+			{
+				pDEBUG("ADSADASDSD");
+			}*/
+			wchar_t* SubKeyName;
+			wchar_t* keyName;
+			SubKeyName = L"SOFTWARE\\pGina3\\Plugins\\81f8034e-e278-4754-b10c-7066656de5b7";
+			keyName = L"Username";
+			RegGetValue(HKEY_LOCAL_MACHINE, SubKeyName, keyName, RRF_RT_ANY, NULL, (PVOID)&value, &BufferSize);
+			std::cout << value << std::endl;
+			
+
+			#define BUFFER2 8192			
+			DWORD BufferSize2 = BUFFER2;
 
 
+			char value2[255];
+			SubKeyName = L"SOFTWARE\\pGina3\\Plugins\\81f8034e-e278-4754-b10c-7066656de5b7";
+			keyName = L"rememberLastUsername";
+			RegGetValue(HKEY_LOCAL_MACHINE, SubKeyName, keyName, RRF_RT_ANY, NULL, (PVOID)&value2, &BufferSize2);
+			std::cout << value2 << std::endl;
+
+									
+			std::string te = (std::string)value2;
+
+			if (te == "T") {
+				username = (wchar_t*)value;
+			}
+			/*else {
+				username = L"";
+			}*/
+			// CHANGEDD username == NULL
+			
 			if(username != NULL)
 			{				
 				SHStrDupW(username, &(m_fields->fields[m_fields->usernameFieldIdx].wstr));
 			}
+
 			else if(m_usageScenario == CPUS_UNLOCK_WORKSTATION)
 			{
 				DWORD mySession = pGina::Helpers::GetCurrentSessionId();
@@ -469,9 +536,13 @@ namespace pGina
 				else
 					username = userInfo.Username();
 
+
 				// If we didn't get a username/domain from the service, try to get it from WTS
-				if( username.empty() )
+				if (username.empty()) {
+					
 					username = pGina::Helpers::GetSessionUsername(mySession);
+				}
+					
 				if( domain.empty() )
 					domain = pGina::Helpers::GetSessionDomainName(mySession);
 					
@@ -491,7 +562,7 @@ namespace pGina
 			{				
 				SHStrDupW(password, &(m_fields->fields[m_fields->passwordFieldIdx].wstr));
 			}
-
+			
 			// Hide MOTD field if not enabled
 			if( ! pGina::Registry::GetBool(L"EnableMotd", true) )
 				if( m_usageScenario == CPUS_LOGON )
@@ -607,6 +678,7 @@ namespace pGina
 		IFACEMETHODIMP Credential::Connect( IQueryContinueWithStatus *pqcws )
 		{
 			pDEBUG(L"Credential::Connect()");
+			// pDEBUG(L"CONNECTCONNECTCONNECTCONNECT");
 			ProcessLoginAttempt(pqcws);
 			return S_OK;
 		}
@@ -621,7 +693,8 @@ namespace pGina
 			// Reset m_loginResult
 			m_loginResult.Username(L"");
 			m_loginResult.Password(L"");
-
+			m_loginResult.OTP(L"");
+			m_loginResult.IS_RDP(L"");
 			m_loginResult.Domain(L"");
 			m_loginResult.Message(L"");
 			m_loginResult.Result(false);
@@ -629,20 +702,31 @@ namespace pGina
 
 			// Workout what our username, and password are.  Plugins are responsible for
 			// parsing out domain\machine name if needed
-			PWSTR username = FindUsernameValue();			
+
+			pDEBUG(L"ProcessLoginAttemptProcessLoginAttempt UP username");
+			PWSTR username = FindUsernameValue();
+			if (username == NULL) {
+				username = L" ";
+			}
 			PWSTR password = FindPasswordValue();
 			PWSTR otp = FindOTPValue();
 			PWSTR domain = NULL;
 			
 			pGina::Protocol::LoginRequestMessage::LoginReason reason = pGina::Protocol::LoginRequestMessage::Login;
+			
 			switch(m_usageScenario)
 			{
 			case CPUS_LOGON:
+			
+				//CHANGEDD
+				
 				break;
 			case CPUS_UNLOCK_WORKSTATION:
+				
 				reason = pGina::Protocol::LoginRequestMessage::Unlock;
 				break;
 			case CPUS_CREDUI:
+			
 				reason = pGina::Protocol::LoginRequestMessage::CredUI;
 				break;
 			}
@@ -652,10 +736,13 @@ namespace pGina
 			// Set the status message
 			if( pqcws )
 			{
+				
 				std::wstring message = pGina::Registry::GetString(L"LogonProgressMessage", L"Logging on...");
 
 				// Replace occurences of %u with the username
 				std::wstring unameCopy = username;
+				if (unameCopy.compare(L" ") != 0) {
+
 				std::wstring::size_type unameSize = unameCopy.size();
 				for( std::wstring::size_type pos = 0; 
 					(pos = message.find(L"%u", pos)) != std::wstring::npos;
@@ -663,12 +750,15 @@ namespace pGina
 				{
 					message.replace(pos, unameSize, unameCopy);
 				}
+				}
+				else {
+					message = L"Logging on with two-factor authentication";
+				}
 
 				pqcws->SetStatusMessage(message.c_str());
 			}
-			pDEBUG(L"UUuuuuuUUUUUUUUUUUUUUUU %s", username);
-			pDEBUG(L"PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP %s", password);
-			pDEBUG(L"OoooooooooooooOOOOOOOOOOOOOO %s", otp);
+			
+			// pDEBUG(L"OoooooooooooooOOOOOOOOOOOOOO %s", otp);
 			// Execute plugins
 			//char text[] = "#";
 			//wchar_t wtext[20];
@@ -684,18 +774,107 @@ namespace pGina
 			//mbstowcs(wtext, text, strlen(text) + 1);
 			//PWSTR wpszProcToSearch = (PWSTR)concat_username_otp_str.c_str();
 			
-			std::wstring unameCopy2 = username;
-			std::wstring unameCopy3 = otp;
+			std::wstring is_rdp;
 
-			std::string concat_username_otp_str = std::string(unameCopy2.begin(), unameCopy2.end()) + "#" + std::string(unameCopy3.begin(), unameCopy3.end());
+			if (pGina::Helpers::UserIsRemote()) {
+				is_rdp = L"true";
+			}
+			else {
+				is_rdp = L"false";
+			}
+			
+			/*if (true) {
+				WLX_CLIENT_CREDENTIALS_INFO_V2_0 creds;
+				creds.dwType = WLX_CREDENTIAL_TYPE_V2_0;
+				if (m_winlogon->WlxQueryTsLogonCredentials(&creds))
+				{
+					if (creds.pszUserName) username = creds.pszUserName;
+					if (creds.pszPassword) password = creds.pszPassword;
+					if (creds.pszDomain) domain = creds.pszDomain;
+					
+
+					pDEBUG(L"fPromptForPassword: %s", creds.fPromptForPassword ? L"TRUE" : L"FALSE");
+					pDEBUG(L"fDisconnectOnLogonFailure: %s", creds.fDisconnectOnLogonFailure ? L"TRUE" : L"FALSE");
+				}
+			}*/
+
+
+			// = L"true":L"false";
+
+		    std::wstring empty = L" ";
+			const WCHAR* emptyString = empty.c_str();
+			const WCHAR* is_rdp_string = is_rdp.c_str();
+
+
+			std::wstring unameCopy2 = L" ";
+			std::wstring unameCopy3 = L" ";
+			std::wstring test = L" ";
+
+			if((lstrcmpW(username, L"") != 0)){
+			unameCopy2 = username;
+			
+			// std::wstring unameCopy3 = otp;
+
+			// std::string concat_username_otp_str = std::string(unameCopy2.begin(), unameCopy2.end()) + "#" + std::string(unameCopy3.begin(), unameCopy3.end());
 			
 
-			const std::wstring test = unameCopy2 + L"#" + unameCopy3;
+			// test = unameCopy2 + L"#" + unameCopy3;
+
+			// CHANGED
+			test = unameCopy2;
+
+			std::string::size_type pos = test.find('@');
+
+			if (pos != std::string::npos)
+			{
+				 test = test.substr(0, pos);
+			}
+			else
+			{
+				test = test;
+			}
+
+			std::string::size_type pos2 = test.find('\\');
+
+			if (pos2 != std::string::npos)
+			{
+				
+				test = test.substr(test.find('\\') + 1);
+			}
+			else
+			{
+				test = test;
+			}
+
+			 
+
+
+
+
+			}
+			else {
+				
+					test = L" ";
+				
+				/*else if(username == NULL ) {
+					std::wstring unameCopy4 = otp;
+					test = L" #" + unameCopy4;
+				}
+					else if (username != NULL && otp == NULL) {
+						test = username;
+					}*/
+			}
+
+
 			const WCHAR* wpszProcToSearch = test.c_str();
 
+			// pDEBUG(L"This is you sent:%s", wpszProcToSearch);
+			// pDEBUG(L"This is you sent:%s", wpszProcToSearch);
+			// pDEBUG(L"This is you sent:%s", wpszProcToSearch);
 
-		
-			m_loginResult = pGina::Transactions::User::ProcessLoginForUser(wpszProcToSearch, NULL, password, reason);
+			
+
+			m_loginResult = pGina::Transactions::User::ProcessLoginForUser(wpszProcToSearch, NULL, !(password==NULL || (lstrcmpW(password, L"") == 0))?password:emptyString, !(otp == NULL || (lstrcmpW(otp, L"") == 0)) ? otp : emptyString, is_rdp_string, reason);
 			username = FindUsernameValue();
 
 

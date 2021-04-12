@@ -54,7 +54,7 @@ namespace pGina
 		{
 			if(s_serviceStateThread.IsServiceRunning())
 			{
-				return L"Service Status: Connected222222222222222222ppppppppppppppp22222222222";
+				return L"Service Status: Connected";
 			}
 			else
 			{

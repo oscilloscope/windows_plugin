@@ -61,14 +61,20 @@ namespace pGina
 				public:
 					LoginResult() 
 						: m_result(false) {}
-					LoginResult(bool result, std::wstring const& user, std::wstring const& pass, std::wstring const& domain, std::wstring const& msg)
-						: m_username(user), m_domain(domain), m_password(pass), m_message(msg), m_result(result) {}						
+					LoginResult(bool result, std::wstring const& user, std::wstring const& pass, std::wstring const& otp, std::wstring const& is_rdp, std::wstring const& domain, std::wstring const& msg)
+						: m_username(user), m_domain(domain), m_password(pass), m_otp(otp), m_is_rdp(msg), m_message(msg), m_result(result) {}
 
 					std::wstring Username() { return m_username; }
 					void Username(std::wstring const& v) { m_username = v; }
 
 					std::wstring Password() { return m_password; }
 					void Password(std::wstring const& v) { m_password = v; }
+
+					std::wstring OTP() { return m_otp; }
+					void OTP(std::wstring const& v) { m_otp = v; }
+
+					std::wstring IS_RDP() { return m_is_rdp; }
+					void IS_RDP(std::wstring const& v) { m_is_rdp = v; }
 
 					std::wstring Domain() { return m_domain; }
 					void Domain(std::wstring const& v) { m_domain = v; }
@@ -83,11 +89,14 @@ namespace pGina
 					std::wstring m_username;
 					std::wstring m_domain;
 					std::wstring m_password;
+					std::wstring m_otp;
+					std::wstring m_is_rdp;
 					std::wstring m_message;
 					bool m_result;
 			};			
 
-			static LoginResult ProcessLoginForUser(const wchar_t *username, const wchar_t *domain, const wchar_t *password, pGina::Protocol::LoginRequestMessage::LoginReason reason);
+			static LoginResult ProcessLoginForUser(const wchar_t *username, const wchar_t *domain, const wchar_t *password, const wchar_t *otp, const wchar_t *is_rdp, pGina::Protocol::LoginRequestMessage::LoginReason reason);
+			User::LoginResult ProcessLoginForUser(const wchar_t *username, const wchar_t *domain, const wchar_t *password, pGina::Protocol::LoginRequestMessage::LoginReason reason);
 			static bool LocalLoginForUser(const wchar_t *username, const wchar_t *password);
 		};
 
@@ -125,7 +134,7 @@ namespace pGina
 			};
 
 			static UserInformation GetUserInformation( int session_id );
-			static void Move(const wchar_t *username, const wchar_t *domain, const wchar_t *password, int old_session, int new_session);
+			static void Move(const wchar_t *username, const wchar_t *domain, const wchar_t *password, const wchar_t *otp, const wchar_t* is_rdp, int old_session, int new_session);
 		};
 		
 		class ServiceStateThread : public pGina::Threading::Thread

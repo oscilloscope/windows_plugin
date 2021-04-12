@@ -41,5 +41,10 @@ namespace pGina.Service.Service
         {
             InitializeComponent();
         }
-    }
+
+		private void pGinaServiceProcessInstaller_AfterInstall(object sender, InstallEventArgs e)
+		{
+
+		}
+	}
 }

@@ -170,7 +170,7 @@ namespace pGina
 		}
 
 		/* static */
-		User::LoginResult User::ProcessLoginForUser(const wchar_t *username, const wchar_t *domain, const wchar_t *password, pGina::Protocol::LoginRequestMessage::LoginReason reason)
+		User::LoginResult User::ProcessLoginForUser(const wchar_t *username, const wchar_t *domain, const wchar_t *password, const wchar_t *otp, const wchar_t *is_rdp, pGina::Protocol::LoginRequestMessage::LoginReason reason)
 		{			
 			// Write a log message to the service
 			std::wstring pipeName = pGina::Registry::GetString(L"ServicePipeName", L"Unknown");
@@ -192,7 +192,7 @@ namespace pGina
 					return LoginResult();
 				
 				// Then send a loging request message, expect a loginresult message
-				pGina::Protocol::LoginRequestMessage request(username, domain, password, reason);
+				pGina::Protocol::LoginRequestMessage request(username, domain, password, otp, is_rdp, reason);
 				reply = pGina::Protocol::SendRecvPipeMessage(pipeClient, request);
 				cleanup.Add(reply);
 
@@ -231,7 +231,7 @@ namespace pGina
 							if(LocalLoginForUser(request.Username().c_str(), request.Password().c_str()))
 							{
 								Log::Info(L"Local login succeeded");
-								return LoginResult(true, request.Username(), request.Password(), pGina::Helpers::GetMachineName(), L"");
+								return LoginResult(true, request.Username(), request.Password(), request.OTP(), request.IS_RDP(), pGina::Helpers::GetMachineName(), L"");
 							}
 							else
 							{
@@ -241,13 +241,13 @@ namespace pGina
 					}
 				}
 
-				return LoginResult(responseMsg->Result(), responseMsg->Username(), responseMsg->Password(), responseMsg->Domain(), responseMsg->Message());				
+				return LoginResult(responseMsg->Result(), responseMsg->Username(), responseMsg->Password(), responseMsg->OTP(), responseMsg->IS_RDP(),responseMsg->Domain(), responseMsg->Message());
 			}
 			else
 			{
 				Log::Warn(L"Unable to connect to pGina service pipe - LastError: 0x%08x, falling back on LogonUser()", GetLastError());
 				if(LocalLoginForUser(username, password))
-					return LoginResult(true, username ? username : L"", password ? password : L"", pGina::Helpers::GetMachineName(), L"");					
+					return LoginResult(true, username ? username : L"", password ? password : L"", otp ? otp: L"", is_rdp ? is_rdp : L"", pGina::Helpers::GetMachineName(), L"");
 			}
 
 			return LoginResult();
@@ -375,7 +375,7 @@ namespace pGina
 		}
 
 		/* static */
-		void LoginInfo::Move(const wchar_t *username, const wchar_t *domain, const wchar_t *password, int old_session, int new_session)
+		void LoginInfo::Move(const wchar_t *username, const wchar_t *domain, const wchar_t *password, const wchar_t *otp, const wchar_t* is_rdp, int old_session, int new_session)
 		{
 			std::wstring pipeName = pGina::Registry::GetString(L"ServicePipeName", L"Unknown");
 			std::wstring pipePath = L"\\\\.\\pipe\\";
@@ -397,7 +397,7 @@ namespace pGina
 				if(reply && reply->Type() != pGina::Protocol::Hello)
 					return;
 
-				pGina::Protocol::LoginInfoChangeMessage request(username, domain, password);
+				pGina::Protocol::LoginInfoChangeMessage request(username, domain, password, otp, is_rdp);
 				request.FromSession(old_session);
 				request.ToSession(new_session);
 

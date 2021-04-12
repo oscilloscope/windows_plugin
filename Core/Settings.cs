@@ -55,7 +55,7 @@ namespace pGina.Core
             s_settings.SetDefault("TraceMsgTraffic", false);            
             s_settings.SetDefault("SessionHelperExe", "pGina.Service.SessionHelper.exe");
             s_settings.SetDefault("EnableMotd", true);
-            s_settings.SetDefault("Motd", "pGina Version: %v");
+            s_settings.SetDefault("Motd", "SecurifyID v3.0.0.0");
             s_settings.SetDefault("GinaPassthru", false);
             s_settings.SetDefault("ChainedGinaPath", "MSGINA.DLL");
             s_settings.SetDefault("EnableSpecialActionButton", false);

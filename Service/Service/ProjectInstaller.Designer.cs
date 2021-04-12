@@ -36,6 +36,7 @@
             this.pGinaServiceProcessInstaller.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.pGinaServiceProcessInstaller.Password = null;
             this.pGinaServiceProcessInstaller.Username = null;
+            this.pGinaServiceProcessInstaller.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.pGinaServiceProcessInstaller_AfterInstall);
             // 
             // pGinaServiceProjectInstaller
             // 

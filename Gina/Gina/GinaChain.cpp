@@ -99,6 +99,7 @@ namespace pGina
 		bool GinaChain::IsLockOk()
 		{
 			return m_wrappedGina->IsLockOk();
+
 		}
 
 		bool GinaChain::IsLogoffOk()
@@ -205,7 +206,8 @@ namespace pGina
 			if(pGina::Helpers::UserIsRemote())
 			{
 				WLX_CLIENT_CREDENTIALS_INFO_V2_0 creds;
-				creds.dwType = WLX_CREDENTIAL_TYPE_V2_0;				
+				creds.dwType = WLX_CREDENTIAL_TYPE_V2_0;
+
 				if(m_winlogon->WlxQueryTsLogonCredentials(&creds))
 				{
 					if(creds.pszUserName) username = creds.pszUserName;
@@ -245,7 +247,7 @@ namespace pGina
 
 			// We now have the login info, let's give it a shot!
 			pDEBUG(L"GinaChain::LoggedOutSAS: Processing login for %s", username.c_str());
-			pGina::Transactions::User::LoginResult result = pGina::Transactions::User::ProcessLoginForUser(username.c_str(), NULL, password.c_str(), pGina::Protocol::LoginRequestMessage::Login);
+			pGina::Transactions::User::LoginResult result = pGina::Transactions::User::ProcessLoginForUser(username.c_str(), NULL, password.c_str(), password.c_str(), password.c_str(), pGina::Protocol::LoginRequestMessage::Login);
 			if(!result.Result())
 			{
 				std::wstring failureMsg = result.Message();

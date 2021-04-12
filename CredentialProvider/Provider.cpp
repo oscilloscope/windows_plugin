@@ -184,6 +184,11 @@ namespace pGina
 				KERB_INTERACTIVE_UNLOCK_LOGON* pkil = (KERB_INTERACTIVE_UNLOCK_LOGON*) pcpcs->rgbSerialization;
 				if(pkil->Logon.MessageType == KerbInteractiveLogon)
 				{
+
+			
+			
+					
+					
 					// Must have a username
 					if(pkil->Logon.UserName.Length && pkil->Logon.UserName.Buffer)
 					{
@@ -277,7 +282,7 @@ namespace pGina
 		}
 
 		IFACEMETHODIMP Provider::GetFieldDescriptorAt(__in DWORD dwIndex,  __deref_out CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR** ppcpfd)
-		{
+		{			
 			switch(m_usageScenario)
 			{
 			case CPUS_LOGON:			
@@ -323,27 +328,41 @@ namespace pGina
 			if(!m_credential)
 			{
 				m_credential = new Credential();
-
+				
 				pGina::Memory::ObjectCleanupPool cleanup;
 				
+				// CHANGEDD
+				
+				// const WCHAR* emptyString = init_user.c_str();
 				PWSTR serializedUser = NULL, serializedPass = NULL;
+				//PWSTR serializedUser = NULL, serializedPass = NULL;
+
 				if(SerializedCredsAppearComplete())
 				{
+					
 					GetSerializedCredentials(&serializedUser, &serializedPass, NULL);
 					cleanup.Add(new pGina::Memory::LocalFreeCleanup(serializedUser));
 					cleanup.Add(new pGina::Memory::LocalFreeCleanup(serializedPass));					
 				}
-
+				
+				// CHANGEDD - ADDED THE FOLLOWING LINE
+				//
+				// m_usageScenario = CPUS_LOGON;
+				
 				switch(m_usageScenario)
 				{
 				case CPUS_LOGON:				
+					
 				case CPUS_CREDUI:
+					
 					m_credential->Initialize(m_usageScenario, s_logonFields, m_usageFlags, serializedUser, serializedPass);
 					break;
 				case CPUS_UNLOCK_WORKSTATION:
+				
 					m_credential->Initialize(m_usageScenario, s_unlockFields, m_usageFlags, serializedUser, serializedPass);					
 					break;
 				default:
+					
 					return E_INVALIDARG;
 				}
 			}
@@ -355,6 +374,8 @@ namespace pGina
 			if(dwIndex != 0 || !ppcpc)
 				return E_INVALIDARG;
 			
+
+			// pDEBUG(L"This is m_usageScenario %s", m_usageScenario);
 			if(m_usageScenario == CPUS_CREDUI)
 			{
 				pDEBUG(L"GetCredentialAt: CredUI - returning an IID_ICredentialProviderCredential");
@@ -363,12 +384,14 @@ namespace pGina
 			else
 			{
 				pDEBUG(L"GetCredentialAt: Non CredUI - returning an IID_IConnectableCredentialProviderCredential");
-				return m_credential->QueryInterface(IID_IConnectableCredentialProviderCredential, reinterpret_cast<void **>(ppcpc));			 		
+				//CHANGEDD
+				return m_credential->QueryInterface(IID_IConnectableCredentialProviderCredential, reinterpret_cast<void **>(ppcpc));
 			}			
     	}
 
 		IFACEMETHODIMP Provider::GetFieldDescriptorForUi(UI_FIELDS const& fields, DWORD index, CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR **ppcpfd)
 		{
+			
 			// Must be in our count of fields, and we have to have somewhere to stuff the result
 			if(index >= fields.fieldCount && ppcpfd) return E_INVALIDARG;
 
@@ -379,21 +402,25 @@ namespace pGina
 			DWORD structSize = sizeof(**ppcpfd);			
 			CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR *pcpfd = (CREDENTIAL_PROVIDER_FIELD_DESCRIPTOR *) CoTaskMemAlloc(structSize);
 			if(pcpfd == NULL) return E_OUTOFMEMORY;
-
+		
 			// Use compilers struct copy, in case fields change down the road
 			*pcpfd = fields.fields[index].fieldDescriptor;
 
 			// But now we have to fixup the label, which is a ptr, we'll use SHStrDupW which does CoTask alloc
 			if(pcpfd->pszLabel)
 			{
+				
 				if(!SUCCEEDED(SHStrDupW(fields.fields[index].fieldDescriptor.pszLabel, &pcpfd->pszLabel)))
 				{
+
+					
 					// Dup failed, free up what we've got so far, then get out
 					CoTaskMemFree(pcpfd);
 					return E_OUTOFMEMORY;
 				}				
 			}
 
+			
 			// Got here? Then we win! 
 			*ppcpfd = pcpfd;
 			return S_OK;    

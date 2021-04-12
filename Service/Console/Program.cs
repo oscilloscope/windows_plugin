@@ -45,7 +45,7 @@ namespace pGina.Service.Console
 
             service.Start();
 
-            System.Console.WriteLine("Any key to stop...");
+           //  System.Console.WriteLine("Any key to stop...");
 
             System.Console.ReadKey();
 

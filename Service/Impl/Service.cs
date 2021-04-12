@@ -171,7 +171,14 @@ namespace pGina.Service.Impl
 
                     // If this is a logout, remove from our map
                     if (changeDescription.Reason == SessionChangeReason.SessionLogoff && m_sessionPropertyCache.Exists(changeDescription.SessionId))
+                    {
+                        //m_logger.DebugFormat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
+                        //m_logger.DebugFormat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
+                        //m_logger.DebugFormat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
+                        //m_logger.DebugFormat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
+                        //m_logger.DebugFormat("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
                         m_sessionPropertyCache.Remove(changeDescription.SessionId);
+                    }
                 }
             }
             catch (Exception e)
@@ -256,11 +263,13 @@ namespace pGina.Service.Impl
                 PluginDriver sessionDriver = new PluginDriver();
                 sessionDriver.UserInformation.Username = msg.Username.Trim();
                 sessionDriver.UserInformation.Password = msg.Password;
+                sessionDriver.UserInformation.OTP = msg.OTP;
+                sessionDriver.UserInformation.is_rdp = msg.is_rdp;
 
                 m_logger.DebugFormat("Processing LoginRequest for: {0} in session: {1} reason: {2}", 
                     sessionDriver.UserInformation.Username, msg.Session, msg.Reason);
                 BooleanResult result = sessionDriver.PerformLoginProcess();
-                m_logger.DebugFormat("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+                // m_logger.DebugFormat("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
                 if (msg.Reason == LoginRequestMessage.LoginReason.Login)
                 {
                     lock (m_sessionPropertyCache)
@@ -268,6 +277,7 @@ namespace pGina.Service.Impl
                         m_sessionPropertyCache.Add(msg.Session, sessionDriver.SessionProperties);
                     }
                 }
+                // Console.WriteLine("Hello World");
 
                 return new LoginResponseMessage()
                 {
@@ -275,7 +285,11 @@ namespace pGina.Service.Impl
                     Message = result.Message,
                     Username = sessionDriver.UserInformation.Username,
                     Domain = sessionDriver.UserInformation.Domain,
-                    Password = sessionDriver.UserInformation.Password
+                    // Domain = null,
+                    Password = sessionDriver.UserInformation.Password,
+                    OTP = sessionDriver.UserInformation.OTP,
+                    is_rdp = sessionDriver.UserInformation.is_rdp
+
                 };                
             }
             catch (Exception e)

@@ -44,6 +44,10 @@ namespace pGina.Core.Messages
 
         public string Username { get; set; }
         public string Password { get; set; }
+
+        public string OTP { get; set; }
+
+        public string is_rdp { get; set; }
         public string Domain { get; set; }
         public int Session { get; set; }
         public LoginReason Reason { get; set; }
@@ -61,6 +65,8 @@ namespace pGina.Core.Messages
         {
             Username = expandoVersion.Username;
             Password = expandoVersion.Password;
+            OTP = expandoVersion.OTP;
+            is_rdp = expandoVersion.is_rdp;
             Domain = expandoVersion.Domain;
             Session = expandoVersion.Session;
             Reason = (LoginReason)((byte)expandoVersion.Reason);
@@ -71,6 +77,8 @@ namespace pGina.Core.Messages
             dynamic exp = new ExpandoObject();
             exp.Username = this.Username;
             exp.Password = this.Password;
+            exp.OTP = this.OTP;
+            exp.is_rdp = this.is_rdp;
             exp.Domain = this.Domain;
             exp.Session = this.Session;
             exp.Reason = (byte)this.Reason;
